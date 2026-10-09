@@ -1,0 +1,63 @@
+<!doctype html>
+<!--
+  CyberFoundHer Leaderboard
+  =========================
+  This file holds STRUCTURE only. Nothing else.
+
+    index.html   what is on the page        (this file)
+    styles.css   what it looks like
+    config.js    the one setting you change
+    app.js       how it works
+
+  The page starts almost empty on purpose. app.js fetches the scores
+  from the published Google Sheet, then fills in #root. That is why you
+  see a "Loading" message here rather than the finished board.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+
+  <!-- viewport-fit=cover lets the page reach the screen edges on phones.
+       styles.css then keeps content clear of the notch and home bar. -->
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+
+  <title>CyberFoundHer Cohort-2 Leaderboard</title>
+  <meta name="description" content="Monthly leaderboard for the CyberFoundHer Mentorship Program.">
+
+  <!-- Archivo, loaded from Google Fonts. If it fails to load the page
+       falls back to Helvetica or Arial, set in styles.css. -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+  <!-- Everything visible lives inside #root and is written by app.js.
+       The markup below is only what a visitor sees for the first second,
+       before the scores arrive. -->
+  <div class="wrap" id="root">
+
+    <div class="brand">
+      <b>CyberFoundHer Mentorship Program</b>
+    </div></br></br>
+
+    <section class="board">
+      <div class="title">LEADERBOARD</div>
+      <div class="state">
+        <b>Loading the board…</b>
+        One moment.
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Order matters: config.js defines the settings that app.js reads,
+       so it has to come first. -->
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+
+</body>
+</html>

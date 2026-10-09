@@ -1,0 +1,284 @@
+/* ===========================================================
+   CyberFoundHer Leaderboard — styles
+   ===========================================================
+   Sections, in order:
+     1. Colours and page setup
+     2. Background glow
+     3. Header
+     4. The board frame
+     5. Month buttons
+     6. Rows, medals, avatars
+     7. Search
+     8. Loading and error messages
+     9. Footer
+    10. Phones
+   =========================================================== */
+
+
+/* -----------------------------------------------------------
+   1. COLOURS AND PAGE SETUP
+   -----------------------------------------------------------
+   Every colour is defined once here as a CSS variable, then used
+   by name below. To restyle the board, change these values and
+   nothing else.
+----------------------------------------------------------- */
+:root{
+  --bg:      #0B2410;   /* page background, deep green            */
+  --pill:    #2C7A3F;   /* the green name bars                    */
+  --pill2:   #256A36;   /* bottom of the name bar gradient        */
+  --bright:  #57A85F;   /* highlights, selected month button      */
+  --beige:   #E9E4D8;   /* avatar circles, one ribbon strip       */
+  --cream:   #F7F5F0;   /* main text                              */
+  --muted:   #8FAE92;   /* secondary text                         */
+  --gold:    #E0B44C;   /* first place accents                    */
+
+  box-sizing:border-box;
+
+  /* Keeps content clear of the notch and home bar on phones.
+     These are zero on desktop. */
+  padding-top:    env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+*,*::before,*::after{ box-sizing:inherit }
+
+html{ scroll-padding-top: env(safe-area-inset-top, 0px) }
+
+body{
+  margin:0;
+  min-height:100%;
+  background:var(--bg);
+  color:var(--cream);
+  font-family:Archivo,"Helvetica Neue",Arial,sans-serif;
+
+  /* tabular-nums makes every digit the same width, so the scores
+     line up in a straight column instead of wobbling */
+  font-variant-numeric:tabular-nums;
+
+  -webkit-font-smoothing:antialiased;
+  position:relative;
+  overflow-x:hidden;   /* the glow below is wider than the screen */
+}
+
+
+/* -----------------------------------------------------------
+   2. BACKGROUND GLOW
+   -----------------------------------------------------------
+   Two soft green circles bleeding off opposite corners, echoing
+   the swoosh in the logo. They are decoration only, so they sit
+   behind everything and ignore clicks.
+----------------------------------------------------------- */
+body::before,
+body::after{
+  content:"";
+  position:fixed;
+  z-index:0;
+  border-radius:50%;
+  pointer-events:none;   /* never blocks a click */
+}
+body::before{            /* top right */
+  width:60vmax; height:60vmax; right:-26vmax; top:-30vmax;
+  background:radial-gradient(circle at 30% 70%, rgba(87,168,95,.30), transparent 62%);
+}
+body::after{             /* bottom left */
+  width:46vmax; height:46vmax; left:-24vmax; bottom:-24vmax;
+  background:radial-gradient(circle at 70% 30%, rgba(44,122,63,.26), transparent 62%);
+}
+
+/* z-index:1 lifts the real content above the glow */
+.wrap{
+  position:relative;
+  z-index:1;
+  max-width:720px;      /* stops the board stretching on a desktop */
+  margin:0 auto;
+  padding:26px 18px 70px;
+}
+
+
+/* -----------------------------------------------------------
+   3. HEADER
+----------------------------------------------------------- */
+.brand{ display:flex; align-items:baseline; gap:8px; margin-bottom:24px }
+.brand b{ font-weight:800; font-size:18px; letter-spacing:-.02em; color:var(--bright) }
+.brand span{ font-size:12.5px; color:var(--muted) }
+
+
+/* -----------------------------------------------------------
+   4. THE BOARD FRAME
+   -----------------------------------------------------------
+   position:relative on .board is what lets .title sit half outside
+   the top edge, the way a tab hangs over a folder.
+----------------------------------------------------------- */
+.board{
+  position:relative;
+  border:1.5px solid rgba(87,168,95,.45);
+  border-radius:20px;
+  background:rgba(18,58,30,.72);
+  padding:30px 18px 24px;
+}
+
+.title{
+  position:absolute;
+  top:-19px;                          /* pulls it above the frame  */
+  left:50%;
+  transform:translateX(-50%);         /* true centring             */
+  background:var(--pill);
+  border:1.5px solid rgba(87,168,95,.6);
+  border-radius:12px;
+  padding:8px 26px;
+  font-weight:900;
+  font-size:clamp(17px, 4.4vw, 22px); /* shrinks on small screens  */
+  letter-spacing:.06em;
+  white-space:nowrap;
+}
+
+.period{ text-align:center; color:var(--muted); font-size:13px; margin:6px 0 20px }
+
+
+/* -----------------------------------------------------------
+   5. MONTH BUTTONS
+   -----------------------------------------------------------
+   aria-pressed is set by app.js and marks the selected month.
+   Using it for styling means the look and the accessibility
+   state can never drift apart.
+----------------------------------------------------------- */
+.chips{ display:flex; flex-wrap:wrap; gap:7px; justify-content:center; margin-bottom:18px }
+
+.chip{
+  font:inherit; font-size:12.5px; font-weight:600;
+  border:1px solid rgba(233,228,216,.22);
+  background:transparent; color:var(--muted);
+  padding:6px 12px; border-radius:999px; cursor:pointer;
+}
+.chip[aria-pressed="true"]{
+  background:var(--bright); border-color:var(--bright); color:#08200D;
+}
+
+/* Visible outline for anyone navigating by keyboard */
+.chip:focus-visible,
+input:focus-visible{ outline:2px solid var(--bright); outline-offset:2px }
+
+
+/* -----------------------------------------------------------
+   6. ROWS, MEDALS, AVATARS
+   -----------------------------------------------------------
+   Each row is a 3-column grid:  medal | avatar | name + score
+----------------------------------------------------------- */
+ol.rows{
+  list-style:none; margin:0; padding:0;
+  display:flex; flex-direction:column; gap:11px;
+}
+
+.row{
+  display:grid;
+  grid-template-columns:42px 42px 1fr;
+  align-items:center;
+  gap:11px;
+}
+
+/* Medals for places 1–3. Drawn as SVG in app.js so they stay sharp
+   at any size. The negative top margin lets the ribbon hang above
+   the row, like a real medal on a ribbon. */
+svg.medal{
+  width:40px; height:47px;
+  display:block;
+  margin:-6px auto 0;
+  overflow:visible;
+  filter:drop-shadow(0 2px 3px rgba(0,0,0,.35));
+}
+
+/* Places 4 and below: a plain number, no medal */
+.medal.mn{
+  width:38px; height:38px;
+  display:grid; place-items:center;
+  color:var(--muted); font-weight:900; font-size:16px;
+}
+
+/* Initials circle. No photo uploads to manage. */
+.ava{
+  width:42px; height:42px; border-radius:50%;
+  background:var(--beige); color:#123A1E;
+  display:grid; place-items:center;
+  font-weight:800; font-size:14.5px;
+}
+
+/* The green bar holding the name and score */
+.pill{
+  background:linear-gradient(180deg, var(--pill), var(--pill2));
+  border-radius:11px;
+  padding:11px 15px;
+  display:flex; align-items:center; gap:12px;
+  min-width:0;          /* lets the name truncate instead of overflow */
+}
+
+/* First place gets a gold outline */
+.row.lead .pill{
+  background:linear-gradient(180deg,#3A9350,#2C7A3F);
+  box-shadow:0 0 0 1.5px rgba(224,180,76,.55);
+}
+
+.nm{
+  font-weight:700; font-size:15px; letter-spacing:-.01em;
+  flex:1; min-width:0;
+  overflow:hidden; text-overflow:ellipsis; white-space:nowrap;  /* long names get "…" */
+}
+
+.pts{ font-weight:900; font-size:15.5px; letter-spacing:-.02em; flex:none }
+
+
+/* -----------------------------------------------------------
+   7. SEARCH
+   -----------------------------------------------------------
+   How someone outside the top five finds her own position,
+   without the whole ranking being on public display.
+----------------------------------------------------------- */
+.find{ margin-top:22px; border-top:1px solid rgba(233,228,216,.14); padding-top:18px }
+.find label{ display:block; font-size:12.5px; font-weight:600; color:var(--muted); margin-bottom:7px }
+.find input{
+  width:100%; font:inherit; font-size:14.5px;
+  padding:11px 14px; border-radius:11px;
+  border:1px solid rgba(233,228,216,.25);
+  background:rgba(11,36,16,.6); color:var(--cream);
+}
+.find input::placeholder{ color:rgba(143,174,146,.8) }
+
+.result{ margin-top:13px; display:flex; flex-direction:column; gap:9px }
+.miss{ font-size:13.5px; color:var(--muted); margin:12px 2px 0; line-height:1.5 }
+
+/* The "YOUR POSITION" label. The left margin lines it up with the
+   name, clearing the medal and avatar columns. */
+.you{
+  font-size:11.5px; font-weight:700; color:var(--gold);
+  letter-spacing:.04em; margin:0 0 3px 95px;
+}
+
+
+/* -----------------------------------------------------------
+   8. LOADING AND ERROR MESSAGES
+----------------------------------------------------------- */
+.state{ text-align:center; padding:26px 10px; color:var(--muted); font-size:14px; line-height:1.6 }
+.state b{ display:block; color:var(--cream); font-size:15px; margin-bottom:4px }
+
+
+/* -----------------------------------------------------------
+   9. FOOTER
+----------------------------------------------------------- */
+footer{ margin-top:26px; text-align:center; font-size:12px; color:var(--muted); line-height:1.6 }
+
+
+/* -----------------------------------------------------------
+   10. PHONES
+   -----------------------------------------------------------
+   Below 430px everything shrinks a little so a row still fits
+   on one line without the name being squeezed.
+----------------------------------------------------------- */
+@media (max-width:430px){
+  .row{ grid-template-columns:36px 36px 1fr; gap:8px }
+  .ava{ width:36px; height:36px; font-size:13px }
+  svg.medal{ width:34px; height:40px }
+  .medal.mn{ width:34px; height:34px; font-size:14px }
+  .you{ margin-left:80px }
+}
+
+/* Respect the system setting for reduced motion */
+@media (prefers-reduced-motion:reduce){ *{ transition:none !important } }
